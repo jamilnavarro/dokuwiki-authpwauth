@@ -11,6 +11,7 @@ if(!defined('DOKU_INC')) die();
 class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 	private $pwauth_path;
 	private $passwd_path;
+	private $shells_path;
 	private $email_domain_name;
 
 	public function __construct() {
