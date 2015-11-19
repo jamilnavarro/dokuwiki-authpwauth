@@ -160,7 +160,7 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 			while (($line = fgets($handle)) !== false) {
 				list($user,$x,$uid,$gid,$GECOS,$home,$shell) = explode(":",trim($line));
 				// Skip root and service users
-				if ( ! in_array( $shell, $shells) || $user == "root") {
+				if ( ( count($shells) > 0 && !in_array( $shell, $shells)) || $user == "root") {
 					continue;
 				}
 				
@@ -202,7 +202,7 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 			while (($line = fgets($handle)) !== false) {
 				list($user,$x,$uid,$gid,$GECOS,$home,$shell) = explode(":",trim($line));
 				// Skip root and service users
-				if ( ! in_array( $shell, $shells) || $user == "root") {
+				if ( ( count($shells) > 0 && !in_array( $shell, $shells)) || $user == "root") {
 					continue;
 				}
 				
