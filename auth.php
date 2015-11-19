@@ -19,6 +19,7 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 		// check pwauth executable
 		$this->pwauth_path = $this->getConf('pwauth_path');
 		$this->passwd_path = $this->getConf('passwd_path');
+		$this->shells_path = $this->getConf('shells_path');
 		$this->email_domain_name = $this->getConf('email_domain_name');
 		if (is_executable($this->pwauth_path)) {
 			$this->cando['addUser']      = false;
@@ -122,6 +123,26 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 	}
 
 	/**
+	 * Return a list of the valid login shells for the system
+	 *
+	 * @author  Jamil Navarro <jamilnavarro@gmail.com>
+	 *
+	 * @return  array List of valid login shells for the system
+	 */
+	private function getSystemShells() {
+		$out = array();
+		$handle = fopen($this->shells_path, "r");
+		if ($handle) {
+			while (($line = fgets($handle)) !== false) {
+				if (preg_match('/^[^\#]/',$line)) {
+					$out[] = trim($line);
+				}
+			}
+		}
+		return $out;
+	}
+	
+	/**
 	 * Return a count of the number of user which meet $filter criteria
 	 *
 	 * @author  Jamil Navarro <jamilnavarro@gmail.com>
@@ -135,10 +156,11 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 		$count = 0;
 		if ($handle) {
 			
+			$shells = $this->getSystemShells();
 			while (($line = fgets($handle)) !== false) {
 				list($user,$x,$uid,$gid,$GECOS,$home,$shell) = explode(":",trim($line));
 				// Skip root and service users
-				if (in_array( $shell, array( "/bin/false", "/usr/sbin/nologin", "/bin/sync")) || $user == "root") {
+				if ( ! in_array( $shell, $shells) || $user == "root") {
 					continue;
 				}
 				
@@ -176,10 +198,11 @@ class auth_plugin_authpwauth extends DokuWiki_Auth_Plugin {
 			$i = 0;
 			$count = 0;
 			
+			$shells = $this->getSystemShells();
 			while (($line = fgets($handle)) !== false) {
 				list($user,$x,$uid,$gid,$GECOS,$home,$shell) = explode(":",trim($line));
 				// Skip root and service users
-				if (in_array( $shell, array( "/bin/false", "/usr/sbin/nologin", "/bin/sync")) || $user == "root") {
+				if ( ! in_array( $shell, $shells) || $user == "root") {
 					continue;
 				}
 				
